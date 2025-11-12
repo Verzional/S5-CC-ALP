@@ -34,7 +34,7 @@ jobs:
         run: npm i
 
       - name: Migrate database
-        run: php artisan migrate
+        run: php artisan migrate --force
 
       # 5️⃣ Build frontend (Vite)
       - name: Build frontend assets
