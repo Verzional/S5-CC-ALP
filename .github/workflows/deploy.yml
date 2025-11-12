@@ -52,7 +52,7 @@ jobs:
         run: |
           scp -o StrictHostKeyChecking=no deploy.zip ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/home/${{ secrets.VPS_USERNAME }}/deploy.zip
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "
-            cd /home/${{ secrets.VPS_USERNAME }}/web/there.vexel.my.id/public_html &&
+            cd /home/${{ secrets.VPS_USERNAME }}/web/vexel.my.id/public_html &&
             unzip -o /home/${{ secrets.VPS_USERNAME }}/deploy.zip &&
             rm /home/${{ secrets.VPS_USERNAME }}/deploy.zip &&
             php artisan optimize
