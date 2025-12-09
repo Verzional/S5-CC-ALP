@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Assignment extends Model
 {
-    protected $fillable = ['rubric_id', 'title'];
+    protected $fillable = ['rubric_id', 'title', 'description'];
 
     public function rubric()
     {

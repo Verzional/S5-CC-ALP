@@ -19,7 +19,8 @@ class GradingService
 
     public function gradeSubmission(Submission $submission)
     {
-        $rubricText = $submission->assignment->rubric->content;
+        $rubric = $submission->assignment->rubric;
+        $assignmentDescription = $submission->assignment->description;
         $studentText = $submission->extracted_text;
 
         $historyExamples = Result::query()
@@ -33,7 +34,7 @@ class GradingService
             ->limit(3)
             ->get();
 
-        $prompt = $this->buildPrompt($rubricText, $studentText, $historyExamples);
+        $prompt = $this->buildPrompt($rubric, $studentText, $assignmentDescription, $historyExamples);
 
         $response = Http::withHeaders(['Content-Type' => 'application/json'])
             ->post("{$this->baseUrl}?key={$this->apiKey}", [
@@ -55,13 +56,16 @@ class GradingService
         return json_decode($generatedText, true);
     }
 
-    private function buildPrompt(Rubric $rubric, string $studentText, $examples)
+    private function buildPrompt(Rubric $rubric, string $studentText, string $assignmentDescription, $examples)
     {
         $prompt = "You are an expert academic grader for the subject: {$rubric->subject_name}.\n";
-        $prompt .= "Your task is to grade a student's work based strictly on the weighted criteria below.\n\n";
+        $prompt .= "Your task is to grade a student's work based on the weighted criteria below.\n\n";
+
+        $prompt .= "### ASSIGNMENT INSTRUCTIONS (Topic):\n";
+        $prompt .= $assignmentDescription."\n";
+        $prompt .= "IMPORTANT: If the student's submission is not relevant to these instructions, penalize the grade significantly, even if the rubric criteria are met.\n\n";
 
         $prompt .= "### GRADING CRITERIA (The Rules):\n";
-
         foreach ($rubric->criteria as $criterion) {
             $name = $criterion['name'];
             $weight = $criterion['weight'];
@@ -94,6 +98,8 @@ class GradingService
             { "criterion": "Understanding", "score_out_of_100": 90, "weighted_score": 18, "reason": "..." }
         ],
             "final_grade": 42,
+            "reasoning": "Overall reasoning for the grade...",
+            "relevance_warning": "This submission discusses Pokemon, but the assignment was about WWI.",
             "overall_feedback": "..."
         }
         Ensure 'final_grade' is the sum of all 'weighted_score' values.

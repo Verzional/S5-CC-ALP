@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('rubric_id')->constrained('rubrics');
             $table->string('title');
+            $table->longtext('description');
             $table->timestamps();
         });
     }

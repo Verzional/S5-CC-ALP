@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Assignment;
+use App\Models\Rubric;
 use Illuminate\Http\Request;
 
 class AssignmentController extends Controller
@@ -12,7 +13,8 @@ class AssignmentController extends Controller
      */
     public function index()
     {
-        //
+        $assignments = Assignment::with('rubric')->get();
+        return view('main.assignments.index', compact('assignments'));
     }
 
     /**
@@ -20,7 +22,8 @@ class AssignmentController extends Controller
      */
     public function create()
     {
-        //
+        $rubrics = Rubric::all();
+        return view('main.assignments.create', compact('rubrics'));
     }
 
     /**
@@ -31,11 +34,13 @@ class AssignmentController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string',
-            'rubric_id' => 'required|exists:rubrics,id', 
-            'due_date' => 'required|date',
+            'description' => 'required|string',
+            'rubric_id' => 'required|exists:rubrics,id',
         ]);
 
         Assignment::create($validated);
+
+        return redirect()->route('assignments.index')->with('success', 'Assignment created successfully.');
     }
 
     /**
