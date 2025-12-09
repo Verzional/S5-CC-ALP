@@ -11,7 +11,7 @@ class GradingService
 {
     protected $apiKey;
 
-    protected $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    protected $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
     public function __construct()
     {
@@ -38,6 +38,7 @@ class GradingService
         $prompt = $this->buildPrompt($rubric, $studentText, $assignmentDescription, $historyExamples);
 
         $response = Http::withHeaders(['Content-Type' => 'application/json'])
+            ->withOptions(['verify' => false])
             ->post("{$this->baseUrl}?key={$this->apiKey}", [
                 'contents' => [
                     ['parts' => [['text' => $prompt]]],
@@ -54,7 +55,12 @@ class GradingService
         $responseData = $response->json();
         $generatedText = $responseData['candidates'][0]['content']['parts'][0]['text'] ?? '{}';
 
-        return json_decode($generatedText, true);
+        $decoded = json_decode($generatedText, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \Exception('Invalid JSON response from AI: ' . json_last_error_msg());
+        }
+
+        return $decoded;
     }
 
     private function buildPrompt(Rubric $rubric, string $studentText, string $assignmentDescription, $examples)
@@ -97,15 +103,13 @@ class GradingService
             "breakdown": [
             { "criterion": "Clarity", "score_out_of_100": 80, "weighted_score": 24, "reason": "..." },
             { "criterion": "Understanding", "score_out_of_100": 90, "weighted_score": 18, "reason": "..." }
-        ],
+            ],
             "final_grade": 42,
             "reasoning": "Overall reasoning for the grade...",
-            'notable_points': "..."
+            "notable_points": ["Point 1", "Point 2", "Point 3"],
             "overall_feedback": "..."
         }
         Ensure 'final_grade' is the sum of all 'weighted_score' values.
-        EOT;
-
-        return $prompt;
+        EOT;        return $prompt;
     }
 }

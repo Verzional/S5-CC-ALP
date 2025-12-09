@@ -15,8 +15,10 @@
                     <div class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ $submission->student_name }}'s Submission</h1>
-                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">For {{ $submission->assignment->title }}</p>
+                                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                                    {{ $submission->student_name }}'s Submission</h1>
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">For
+                                    {{ $submission->assignment->title }}</p>
                             </div>
                             <div class="flex space-x-3">
                                 <a href="{{ route('submissions.edit', $submission) }}"
@@ -39,7 +41,8 @@
                         </h2>
                         <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                             <p class="text-gray-700 dark:text-gray-300">{{ $submission->assignment->title }}</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 text-wrap whitespace-pre-line   ">{{ $submission->assignment->description }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 text-wrap whitespace-pre-line   ">
+                                {{ $submission->assignment->description }}</p>
                         </div>
                     </div>
 
@@ -50,24 +53,31 @@
                         </h2>
                         <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                             <p class="text-gray-700 dark:text-gray-300">{{ basename($submission->file_path) }}</p>
-                            <a href="{{ route('submissions.download', $submission) }}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">Download PDF</a>
+                            <a href="{{ route('submissions.download', $submission) }}"
+                                class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">Download
+                                PDF</a>
                         </div>
                     </div>
 
                     <!-- Grading Section -->
-                    @if($submission->result)
+                    @if ($submission->result)
                         <div class="mb-8">
                             <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
                                 Grading Result
                             </h2>
                             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                                <p class="text-gray-700 dark:text-gray-300"><strong>Grade:</strong> {{ $submission->result->grade }}/100</p>
-                                <p class="text-gray-700 dark:text-gray-300 mt-2"><strong>Reasoning:</strong> {{ $submission->result->reasoning }}</p>
-                                @if($submission->result->feedback)
-                                    <p class="text-gray-700 dark:text-gray-300 mt-2"><strong>Relevance Warning:</strong> {{ $submission->result->feedback }}</p>
+                                <p class="text-gray-700 dark:text-gray-300"><strong>Grade:</strong>
+                                    {{ $submission->result->grade }}/100</p>
+                                <p class="text-gray-700 dark:text-gray-300 mt-2"><strong>Reasoning: <br /> </strong>
+                                    {{ $submission->result->reasoning }}</p>
+                                @if ($submission->result->feedback)
+                                    <p class="text-gray-700 dark:text-gray-300 mt-2"><strong>Overall Feedback: <br />
+                                        </strong>
+                                        {{ $submission->result->feedback }}</p>
                                 @endif
-                                @if($submission->result->notable_points)
-                                    <p class="text-gray-700 dark:text-gray-300 mt-2"><strong>Overall Feedback:</strong> {{ $submission->result->notable_points }}</p>
+                                @if ($submission->result->notable_points)
+                                    <p class="text-gray-700 dark:text-gray-300 mt-2"><strong>Notable Points: </br> </strong>
+                                        {!! nl2br(e($submission->result->notable_points)) !!}</p>
                                 @endif
                             </div>
                         </div>
@@ -76,9 +86,11 @@
                             <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
                                 Grade Submission
                             </h2>
-                            <form action="{{ route('submissions.grade', $submission) }}" method="POST" class="inline">
+                            <form id="grade-form" action="{{ route('submissions.grade', $submission) }}" method="POST"
+                                class="inline">
                                 @csrf
-                                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                <button id="grade-button" type="submit"
+                                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                                     AI Grade Submission
                                 </button>
                             </form>
@@ -103,4 +115,37 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('grade-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const button = document.getElementById('grade-button');
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Grading...';
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this),
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message);
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }
+            } catch (error) {
+                alert('An error occurred while grading.');
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        });
+    </script>
 @endsection

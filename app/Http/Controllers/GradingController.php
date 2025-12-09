@@ -18,27 +18,48 @@ class GradingController extends Controller
     public function grade(Submission $submission)
     {
         if (empty($submission->extracted_text)) {
-            return back()->with('error', 'Please wait for the PDF to be processed into text.');
+            $message = 'Please wait for the PDF to be processed into text.';
+            if (request()->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $message]);
+            }
+            return back()->with('error', $message);
         }
 
         try {
             $aiResult = $this->grader->gradeSubmission($submission);
 
+            if (!isset($aiResult['final_grade']) || !isset($aiResult['reasoning'])) {
+                throw new \Exception('Incomplete AI response: missing required fields.');
+            }
+
+            $notablePoints = $aiResult['notable_points'] ?? [];
+            if (is_array($notablePoints)) {
+                $notablePoints = implode("\n", $notablePoints);
+            }
+
             Result::create([
                 'submission_id' => $submission->id,
                 'grade' => $aiResult['final_grade'],
                 'reasoning' => $aiResult['reasoning'],
-                'notable_points' => $aiResult['notable_points'] ?? '',
+                'notable_points' => $notablePoints,
                 'feedback' => $aiResult['overall_feedback'] ?? '',
                 'is_verified' => false,
             ]);
 
-            return back()->with('success', 'AI Grading complete! Please review and verify.');
+            $message = 'AI Grading complete! Please review and verify.';
+            if (request()->expectsJson()) {
+                return response()->json(['success' => true, 'message' => $message]);
+            }
+            return back()->with('success', $message);
 
         } catch (\Exception $e) {
             \Log::error('Grading failed: '.$e->getMessage());
 
-            return back()->with('error', 'AI service is temporarily unavailable.');
+            $message = 'AI service is temporarily unavailable.';
+            if (request()->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $message]);
+            }
+            return back()->with('error', $message);
         }
     }
 }

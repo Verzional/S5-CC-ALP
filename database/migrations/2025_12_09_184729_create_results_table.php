@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('results', function (Blueprint $table) {
             $table->id();
             $table->foreignId('submission_id')->constrained('submissions');
-            $table->integer('grade');
+            $table->decimal('grade', 5, 2);
             $table->text('reasoning');
             $table->text('feedback');
-            $table->json('notable_points');
+            $table->text('notable_points');
             $table->boolean('is_verified')->default(false);
             $table->timestamps();
         });
