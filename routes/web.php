@@ -12,13 +12,13 @@ use App\Models\Assignment;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-*/
+*/ 
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// --- DASHBOARD LOGIC ---
+// --- DASHBOARD ---
 Route::get('/dashboard', function () {
     
     // 1. STATISTIK (Count Data Real)
@@ -26,12 +26,12 @@ Route::get('/dashboard', function () {
     $totalAssignments = Assignment::count();
     $totalSubmissions = DB::table('submissions')->count(); 
 
-    // 2. RECENT ACTIVITY (Tanpa User, Sesuai Database)
+    // 2. RECENT ACTIVITY
     
     // A. Aktivitas Rubric
     $rubricActivities = Rubric::latest('updated_at')->take(5)->get()->map(function($item) {
         return (object)[
-            'name'   => $item->subject_name, // Kolom subject_name
+            'name'   => $item->subject_name, 
             'date'   => $item->updated_at,
             'type'   => 'Rubric',
         ];
@@ -40,7 +40,7 @@ Route::get('/dashboard', function () {
     // B. Aktivitas Assignment
     $assignmentActivities = Assignment::latest('updated_at')->take(5)->get()->map(function($item) {
         return (object)[
-            'name'   => $item->title, // Kolom title
+            'name'   => $item->title,
             'date'   => $item->updated_at,
             'type'   => 'Assignment',
         ];
