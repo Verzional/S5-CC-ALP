@@ -123,7 +123,7 @@
                 class="relative h-[500px] w-full bg-gradient-to-br from-indigo-100 to-white rounded-[2.5rem] flex items-end justify-center overflow-hidden border border-white shadow-2xl">
 
                 <div class="absolute inset-0 bg-gradient-to-t from-indigo-50/80 via-transparent to-transparent"></div>
-                
+
                 <img src="{{ asset('images/welcome.png') }}" class="absolute bottom-0 h-[90%] object-contain z-0"
                     alt="Happy User">
 
@@ -136,7 +136,8 @@
                     </div>
                 </div>
 
-                <div class="absolute bottom-20 right-0 mr-3 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-[200px] animate-bounce">
+                <div
+                    class="absolute bottom-20 right-0 mr-3 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 max-w-[200px] animate-bounce">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-xs font-bold text-slate-400">Analysis Result</span>
                         <span
