@@ -1,30 +1,14 @@
 <x-app-layout>
     <div class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div class="mb-6">
-            <a href="{{ route('submissions.index') }}"
-                class="inline-flex items-center gap-2 text-slate-500 font-semibold hover:text-[#764BA2] transition-colors group">
-                <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to List
-            </a>
-        </div>
-
         <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 overflow-hidden border border-slate-100">
-            <div class="bg-[#F8F9FF] p-6 sm:p-8 border-b border-slate-100">
-                <span
-                    class="inline-block bg-[#764BA2] text-white text-[10px] px-2.5 py-1 rounded-lg font-bold uppercase tracking-widest shadow-sm mb-3">
-                    Edit Mode
-                </span>
+            <div class="bg-[#e7e2ff] p-6 sm:p-8 border-b border-slate-100">
                 <h2 class="text-2xl font-extrabold text-slate-800">Edit Submission</h2>
                 <p class="text-slate-500 text-sm font-medium mt-1">You can update the student name, assignment category,
                     or replace the PDF file.</p>
             </div>
 
             <form method="POST" action="{{ route('submissions.update', $submission) }}" id="submissionForm"
-                enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6">
+                enctype="multipart/form-data" class="p-6 sm:p-8 space-y-4">
                 @csrf
                 @method('PUT')
 

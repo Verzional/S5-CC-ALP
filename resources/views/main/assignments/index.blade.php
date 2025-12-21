@@ -5,16 +5,19 @@
     </div>
 
     <div class="flex flex-col sm:flex-row justify-between items-center mb-8 mt-5">
-        <div class="relative w-full sm:w-80">
+        <form method="GET" action="{{ route('assignments.index') }}" class="relative w-full sm:w-80">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
             </span>
-            <input type="text" placeholder="Search assignments..."
-                class="w-full py-2.5 pl-10 pr-4 bg-gray-50 border border-gray-200 text-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#764BA2] focus:border-transparent transition-all placeholder-gray-400">
-        </div>
+
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search assignments..."
+                class="w-full py-2.5 pl-10 pr-4 bg-gray-50 border border-gray-200
+               text-gray-700 rounded-xl focus:outline-none
+               focus:ring-2 focus:ring-[#764BA2]">
+        </form>
 
         <a href="{{ Route::has('assignments.create') ? route('assignments.create') : '#' }}"
             class="w-full sm:w-auto px-6 py-3 bg-[#764BA2] hover:bg-[#633e8a]
@@ -29,24 +32,11 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
         @forelse($assignments ?? [] as $assignment)
             <div
                 class="bg-[#EBEBFF] rounded-2xl p-6 relative hover:shadow-md transition-shadow group flex flex-col h-full border border-indigo-50">
 
                 <div class="absolute top-4 right-4 flex gap-2 z-10">
-
-                    <a href="{{ route('assignments.show', $assignment->id) }}"
-                        class="p-2 bg-white text-gray-600 rounded-lg hover:bg-[#764BA2] hover:text-white transition-colors shadow-sm"
-                        title="View Detail">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                    </a>
-
                     <a href="{{ route('assignments.edit', $assignment->id) }}"
                         class="p-2 bg-[#D0D3F5] text-[#764BA2] rounded-lg hover:bg-[#764BA2] hover:text-white transition-colors shadow-sm"
                         title="Edit">
@@ -71,39 +61,42 @@
                     </form>
                 </div>
 
-                <div
-                    class="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-4 text-[#764BA2] shadow-sm">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                </div>
-
                 <a href="{{ route('assignments.show', $assignment->id) }}"
-                    class="hover:underline decoration-[#764BA2] decoration-2 underline-offset-2">
+                    class="block h-full flex flex-col justify-between relative z-10">
+                    <div
+                        class="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-4 text-[#764BA2] shadow-sm">
+
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+
                     <h3 class="text-lg font-bold text-gray-700 mb-2 pr-24 leading-tight">
                         {{ $assignment->title }}
                     </h3>
+
+                    <p class="text-gray-500 text-sm mb-4 flex-grow">
+                        {{ Str::limit($assignment->description ?? 'No description provided.', 80) }}
+                    </p>
+
+                    <div
+                        class="pt-4 border-t border-indigo-200/50 flex flex-col gap-1 text-xs font-medium text-gray-500">
+                        <div class="flex items-center justify-between">
+                            <span>Rubric Used:</span>
+                            <span
+                                class="text-[#764BA2] font-bold bg-white px-2 py-0.5 rounded-md border border-indigo-100">
+                                {{ $assignment->rubric->subject_name ?? 'Unassigned' }}
+                            </span>
+                        </div>
+                        
+                    <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex justify-between items-center">
+                            <span>Created On {{ $assignment->created_at->format('d M Y') }}</span>
+                        </div>
+
+                        
+                    </div>
                 </a>
-
-                <p class="text-gray-500 text-sm mb-4 flex-grow">
-                    {{ Str::limit($assignment->description ?? 'No description provided.', 80) }}
-                </p>
-
-                <div class="pt-4 border-t border-indigo-200/50 flex flex-col gap-1 text-xs font-medium text-gray-500">
-                    <div class="flex items-center justify-between">
-                        <span>Rubric Used:</span>
-                        <span
-                            class="text-[#764BA2] font-bold bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
-                            {{ $assignment->rubric->subject_name ?? 'Unassigned' }}
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between mt-1">
-                        <span>Created:</span>
-                        <span>{{ $assignment->created_at->format('d M Y') }}</span>
-                    </div>
-                </div>
-
             </div>
         @empty
             <div class="col-span-full py-12 text-center text-gray-500">

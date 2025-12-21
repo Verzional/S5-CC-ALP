@@ -18,7 +18,7 @@
 
     <div class="flex min-h-screen bg-white">
 
-        <aside class="w-64 bg-[#F0F2FF] border-r border-indigo-50 flex flex-col fixed h-full z-30">
+        <aside class="w-64 bg-[#F0F2FF] border-r border-indigo-50 flex flex-col fixed h-screen z-30">
 
             <div class="h-24 flex items-center px-8">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
@@ -68,7 +68,7 @@
 
             </nav>
 
-            <div class="p-6 border-t border-indigo-100 flex items-center justify-between gap-2"> <a
+            <div class="mt-auto p-6 border-t border-indigo-100 flex items-center justify-between gap-2"> <a
                     href="{{ route('profile.edit') }}" class="flex items-center gap-3 group">
                     <div
                         class="w-10 h-10 rounded-full bg-[#764BA2] text-white flex items-center justify-center font-bold text-lg">
@@ -85,7 +85,6 @@
                     <button type="submit"
                         class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                         title="Log Out">
-                        {{-- Ikon Logout (Heroicons) --}}
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-6 h-6">
                             <path stroke-linecap="round" stroke-linejoin="round"

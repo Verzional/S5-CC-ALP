@@ -11,9 +11,18 @@ class AssignmentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $assignments = Assignment::with('rubric')->get();
+        $assignments = Assignment::with('rubric')
+            ->when($request->search, function ($query, $search) {
+                $query->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('rubric', function ($q) use ($search) {
+                        $q->where('subject_name', 'like', "%{$search}%");
+                    });
+            })
+            ->latest()
+            ->get();
         return view('main.assignments.index', compact('assignments'));
     }
 

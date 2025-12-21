@@ -28,7 +28,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Upload PDF Files (Multiple)</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Upload PDF File</label>
                     <div class="relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300"
                         :class="files ? 'border-green-400 bg-green-50' : 'border-gray-200 hover:border-[#764BA2]'">
 

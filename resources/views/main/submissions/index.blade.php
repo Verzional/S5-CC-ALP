@@ -5,18 +5,28 @@
     </div>
 
     <div class="flex flex-col sm:flex-row justify-between items-center mb-8 mt-5">
-        <div class="relative w-full sm:w-72">
+        <form method="GET" action="{{ route('submissions.index') }}" class="relative w-full sm:w-72">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
             </span>
-            <input type="text" placeholder="Search submissions..."
-                class="w-full py-2.5 pl-10 pr-4 bg-gray-50 border border-gray-200 text-gray-700 rounded-xl
-                       focus:outline-none focus:ring-2 focus:ring-[#764BA2] focus:border-transparent
-                       transition-all placeholder-gray-400">
-        </div>
+
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search submissions..."
+                class="w-full py-2.5 pl-10 pr-4 bg-gray-50 border border-gray-200
+               text-gray-700 rounded-xl focus:outline-none
+               focus:ring-2 focus:ring-[#764BA2]
+               transition-all placeholder-gray-400">
+
+            @if (request('search'))
+                <a href="{{ route('submissions.index') }}"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
+                    ✕
+                </a>
+            @endif
+        </form>
+
 
         <a href="{{ route('submissions.create') }}"
             class="w-full sm:w-auto px-6 py-3 bg-[#764BA2] hover:bg-[#633e8a]
@@ -28,9 +38,7 @@
             </svg>
             Upload Submission
         </a>
-
     </div>
-
 
     <x-toast :message="session('success')" type="success" />
 
@@ -39,19 +47,7 @@
             <div
                 class="bg-[#EBEBFF] rounded-2xl p-6 relative hover:shadow-md transition-shadow group border border-indigo-50 min-h-[200px] flex flex-col justify-between">
 
-                <div
-                    class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                    <a href="{{ route('submissions.show', $submission) }}"
-                        class="w-8 h-8 flex items-center justify-center bg-white text-gray-600 rounded-lg shadow-sm hover:text-[#764BA2] hover:scale-110 transition-all"
-                        title="View Details">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                    </a>
-
+                <div class="absolute top-4 right-4 flex gap-2 z-20">
                     <a href="{{ route('submissions.edit', $submission) }}"
                         class="w-8 h-8 flex items-center justify-center bg-[#D0D3F5] text-[#764BA2] rounded-lg hover:bg-[#764BA2] hover:text-white hover:scale-110 transition-all">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -78,7 +74,8 @@
                         class="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-4 text-[#764BA2] shadow-sm">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                            </path>
                         </svg>
                     </div>
 
@@ -92,7 +89,7 @@
                     </p>
 
                     <div
-                        class="pt-4 border-t border-indigo-200/50 text-xs text-gray-400 font-medium flex justify-between items-center">
+                        class="pt-4 border-t border-indigo-200/50 text-[10px] text-gray-400 font-bold uppercase tracking-widest flex justify-between items-center">
                         <span>Uploaded {{ $submission->created_at->diffForHumans() }}</span>
                         @if ($submission->result)
                             <span

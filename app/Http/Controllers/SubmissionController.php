@@ -13,10 +13,18 @@ class SubmissionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $submissions = Submission::with('assignment')->get();
-
+        $submissions = Submission::with('assignment')
+            ->when($request->search, function ($query, $search) {
+                $query->where('student_name', 'like', "%{$search}%")
+                    ->orWhereHas('assignment', function ($q) use ($search) {
+                        $q->where('title', 'like', "%{$search}%");
+                    });
+            })
+            ->latest()
+            ->get();
+            
         return view('main.submissions.index', compact('submissions'));
     }
 
