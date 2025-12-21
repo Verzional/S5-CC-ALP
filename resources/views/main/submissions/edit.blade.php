@@ -1,78 +1,99 @@
 <x-app-layout>
-    <div class="max-w-4xl mx-auto">
-        
-        <div class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-700">Edit Submission</h2>
-            <p class="text-gray-500 mt-1">Update student name or replace the uploaded file.</p>
+    <div class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="mb-6">
+            <a href="{{ route('submissions.index') }}"
+                class="inline-flex items-center gap-2 text-slate-500 font-semibold hover:text-[#764BA2] transition-colors group">
+                <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to List
+            </a>
         </div>
 
-        <div class="bg-white rounded-[2rem] shadow-xl shadow-indigo-100 p-8 sm:p-12 border border-indigo-50">
-            
-            <form action="{{ route('submissions.update', $submission->id) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+        <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 overflow-hidden border border-slate-100">
+            <div class="bg-[#F8F9FF] p-6 sm:p-8 border-b border-slate-100">
+                <span
+                    class="inline-block bg-[#764BA2] text-white text-[10px] px-2.5 py-1 rounded-lg font-bold uppercase tracking-widest shadow-sm mb-3">
+                    Edit Mode
+                </span>
+                <h2 class="text-2xl font-extrabold text-slate-800">Edit Submission</h2>
+                <p class="text-slate-500 text-sm font-medium mt-1">You can update the student name, assignment category,
+                    or replace the PDF file.</p>
+            </div>
+
+            <form method="POST" action="{{ route('submissions.update', $submission) }}" id="submissionForm"
+                enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6">
                 @csrf
                 @method('PUT')
 
-                <div>
-                    <label class="block text-lg font-bold text-gray-700 mb-3">Step 1: Assignment</label>
-                    <div class="relative">
-                        <select name="assignment_id" required
-                                class="w-full px-5 py-4 rounded-xl bg-gray-50 border-gray-200 text-gray-700 focus:ring-2 focus:ring-[#764BA2] focus:border-transparent appearance-none cursor-pointer text-base">
-                            
-                            @foreach($assignments as $assignment)
-                                <option value="{{ $assignment->id }}" {{ $submission->assignment_id == $assignment->id ? 'selected' : '' }}>
-                                    {{ $assignment->title }}
-                                </option>
-                            @endforeach
-
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-lg font-bold text-gray-700 mb-3">Step 2: Student Name</label>
-                    <input type="text" name="student_name" 
-                           value="{{ old('student_name', $submission->student_name) }}" required
-                           class="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:ring-2 focus:ring-[#764BA2] focus:border-transparent text-base">
-                </div>
-
-                <div>
-                    <label class="block text-lg font-bold text-gray-700 mb-3">
-                        Step 3: Replace File <span class="text-sm font-normal text-gray-500">(Optional)</span>
+                <div class="space-y-2">
+                    <label for="student_name"
+                        class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                        Student Full Name
                     </label>
-                    
-                    @if($submission->file_path)
-                        <div class="mb-4 flex items-center gap-2 text-sm text-[#764BA2] bg-[#EBEBFF] p-3 rounded-lg w-fit">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                            <span>Current file exists. Upload below only if you want to replace it.</span>
-                        </div>
-                    @endif
-
-                    <div class="relative group">
-                        <input type="file" name="file" 
-                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                               onchange="document.getElementById('file-name-display').innerText = 'Selected: ' + this.files[0].name;">
-                        
-                        <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl h-40 flex flex-col items-center justify-center transition-all group-hover:border-[#764BA2] group-hover:bg-[#EBEBFF]">
-                            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-2 shadow-sm text-gray-400 group-hover:text-[#764BA2]">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                            </div>
-                            <p class="text-gray-600 font-medium">Click to upload new file</p>
-                            <p id="file-name-display" class="mt-2 text-sm text-[#764BA2] font-bold"></p>
-                        </div>
-                    </div>
+                    <input type="text" name="student_name" id="student_name"
+                        value="{{ old('student_name', $submission->student_name) }}"
+                        class="block w-full px-4 py-3 rounded-xl border-slate-200 text-slate-700 font-medium focus:border-[#764BA2] focus:ring focus:ring-[#764BA2]/10 transition-all"
+                        required>
                 </div>
 
-                <div class="flex items-center justify-end gap-4 pt-4">
-                    <a href="{{ route('submissions.index') }}" class="text-gray-500 hover:text-gray-700 font-bold px-4">Cancel</a>
-                    <button type="submit" 
-                            class="bg-[#764BA2] hover:bg-[#633e8a] text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-transform transform hover:-translate-y-0.5">
-                        Save Changes
+                <div class="space-y-2">
+                    <label for="assignment_id"
+                        class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                        Assignment Category
+                    </label>
+                    <select name="assignment_id" id="assignment_id"
+                        class="block w-full px-4 py-3 rounded-xl border-slate-200 text-slate-700 font-medium focus:border-[#764BA2] focus:ring focus:ring-[#764BA2]/10 transition-all">
+                        @foreach ($assignments as $assignment)
+                            <option value="{{ $assignment->id }}"
+                                {{ $submission->assignment_id == $assignment->id ? 'selected' : '' }}>
+                                {{ $assignment->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="pdf_file" class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                        Replace PDF File (Optional)
+                    </label>
+                    <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div
+                                class="w-10 h-10 bg-indigo-50 text-[#764BA2] rounded-lg flex items-center justify-center shrink-0">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div class="overflow-hidden">
+                                <p
+                                    class="text-[10px] text-slate-400 font-bold uppercase tracking-tight leading-none mb-1">
+                                    Current File</p>
+                                <p class="text-sm text-slate-600 font-medium truncate">
+                                    {{ basename($submission->file_path) }}</p>
+                            </div>
+                        </div>
+
+                        <input type="file" name="pdf_file" id="pdf_file" accept=".pdf"
+                            class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-[#764BA2] hover:file:bg-indigo-100 transition-all cursor-pointer">
+                    </div>
+                    <p class="text-[10px] text-slate-400 italic ml-1">*Uploading a new file will replace the old
+                        document and its extraction.</p>
+                </div>
+
+                <div class="pt-6 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-slate-100">
+                    <a href="{{ route('submissions.index') }}"
+                        class="w-full sm:w-auto px-6 py-3 text-slate-500 font-bold text-sm hover:text-slate-700 transition-colors text-center">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                        class="w-full sm:w-auto px-10 py-3 bg-[#764BA2] hover:bg-[#633e8a] text-white font-bold rounded-2xl shadow-lg shadow-indigo-200/50 transition-all active:scale-95">
+                        Update Submission
                     </button>
                 </div>
-
             </form>
         </div>
     </div>

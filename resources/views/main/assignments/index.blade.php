@@ -1,11 +1,10 @@
 <x-app-layout>
+    <div>
+        <h2 class="text-2xl font-bold text-gray-700">Assignments List</h2>
+        <p class="text-gray-500">Manage assignments and connect them with grading rubrics.</p>
+    </div>
 
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-700">Assignments List</h2>
-            <p class="text-gray-500">Manage assignments and connect them with grading rubrics.</p>
-        </div>
-
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-8 mt-5">
         <div class="relative w-full sm:w-80">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -16,16 +15,18 @@
             <input type="text" placeholder="Search assignments..."
                 class="w-full py-2.5 pl-10 pr-4 bg-gray-50 border border-gray-200 text-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#764BA2] focus:border-transparent transition-all placeholder-gray-400">
         </div>
-    </div>
 
-    <a href="{{ Route::has('assignments.create') ? route('assignments.create') : '#' }}"
-        class="block w-full py-4 bg-[#8B5CF6] hover:bg-[#7c4dff] text-white rounded-xl shadow-lg shadow-purple-200 transition-all transform hover:-translate-y-0.5 mb-10 flex items-center justify-center gap-2 group">
-        <svg class="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        <span class="text-lg font-bold">Create New Assignment</span>
-    </a>
+        <a href="{{ Route::has('assignments.create') ? route('assignments.create') : '#' }}"
+            class="w-full sm:w-auto px-6 py-3 bg-[#764BA2] hover:bg-[#633e8a]
+                   text-white font-bold rounded-xl shadow-lg shadow-indigo-200
+                   transition-transform transform hover:-translate-y-0.5
+                   flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Create New Assignment
+        </a>
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 

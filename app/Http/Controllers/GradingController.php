@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Result;
 use App\Models\Submission;
 use App\Services\GradingService;
+use Illuminate\Support\Facades\Log;
 
 class GradingController extends Controller
 {
@@ -54,9 +55,8 @@ class GradingController extends Controller
                 return response()->json(['success' => true, 'message' => $message]);
             }
             return back()->with('success', $message);
-
         } catch (\Exception $e) {
-            \Log::error('Grading failed: '.$e->getMessage());
+            Log::error('Grading failed: ' . $e->getMessage());
 
             $message = 'AI service is temporarily unavailable.';
             if (request()->expectsJson()) {

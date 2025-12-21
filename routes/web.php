@@ -3,16 +3,13 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RubricController;
 use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\GradingController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use App\Models\Rubric;
 use App\Models\Assignment;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/ 
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,25 +17,25 @@ Route::get('/', function () {
 
 // --- DASHBOARD ---
 Route::get('/dashboard', function () {
-    
+
     // 1. STATISTIK (Count Data Real)
     $totalRubrics = Rubric::count();
     $totalAssignments = Assignment::count();
-    $totalSubmissions = DB::table('submissions')->count(); 
+    $totalSubmissions = DB::table('submissions')->count();
 
     // 2. RECENT ACTIVITY
-    
+
     // A. Aktivitas Rubric
-    $rubricActivities = Rubric::latest('updated_at')->take(5)->get()->map(function($item) {
+    $rubricActivities = Rubric::latest('updated_at')->take(5)->get()->map(function ($item) {
         return (object)[
-            'name'   => $item->subject_name, 
+            'name'   => $item->subject_name,
             'date'   => $item->updated_at,
             'type'   => 'Rubric',
         ];
     });
 
     // B. Aktivitas Assignment
-    $assignmentActivities = Assignment::latest('updated_at')->take(5)->get()->map(function($item) {
+    $assignmentActivities = Assignment::latest('updated_at')->take(5)->get()->map(function ($item) {
         return (object)[
             'name'   => $item->title,
             'date'   => $item->updated_at,
@@ -47,9 +44,9 @@ Route::get('/dashboard', function () {
     });
 
     // C. Aktivitas Submission
-    $submissionActivities = DB::table('submissions')->orderBy('created_at', 'desc')->take(5)->get()->map(function($item) {
+    $submissionActivities = DB::table('submissions')->orderBy('created_at', 'desc')->take(5)->get()->map(function ($item) {
         return (object)[
-            'name'   => 'Submission #' . $item->id, 
+            'name'   => 'Submission #' . $item->id,
             'date'   => \Carbon\Carbon::parse($item->created_at),
             'type'   => 'Submission',
         ];
@@ -69,7 +66,6 @@ Route::get('/dashboard', function () {
         'totalSubmissions' => $totalSubmissions,
         'activities'       => $allActivities
     ]);
-
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
@@ -83,7 +79,15 @@ Route::middleware('auth')->group(function () {
     // Resources
     Route::resource('rubrics', RubricController::class);
     Route::resource('assignments', AssignmentController::class);
-    Route::resource('submissions', \App\Http\Controllers\SubmissionController::class);
+    Route::resource('submissions', SubmissionController::class);
+
+    Route::get(
+        'submissions/{submission}/download',
+        [SubmissionController::class, 'download']
+    )->name('submissions.download');
+
+    Route::post('/submissions/{submission}/grade', [GradingController::class, 'grade'])
+        ->name('submissions.grade');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
