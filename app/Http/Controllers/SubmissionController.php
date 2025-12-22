@@ -4,211 +4,162 @@ namespace App\Http\Controllers;
 
 use App\Models\Assignment;
 use App\Models\Submission;
-use App\Models\Rubric;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
 use Smalot\PdfParser\Parser;
 
 class SubmissionController extends Controller
 {
-    public function index()
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
     {
-        $submissions = Submission::with('assignment')->latest()->get();
+        $submissions = Submission::with('assignment')
+            ->when($request->search, function ($query, $search) {
+                $query->where('student_name', 'like', "%{$search}%")
+                    ->orWhereHas('assignment', function ($q) use ($search) {
+                        $q->where('title', 'like', "%{$search}%");
+                    });
+            })
+            ->latest()
+            ->get();
+            
         return view('main.submissions.index', compact('submissions'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
         $assignments = Assignment::all();
-        $rubrics = Rubric::all();
-        return view('main.submissions.create', compact('assignments', 'rubrics'));
-    }
 
-    public function store(Request $request)
-    {
-        // 1. Validasi
-        $request->validate([
-            'pdf_files'     => 'required|array|min:1',
-            'pdf_files.*'   => 'mimes:pdf|max:10240',
-            'assignment_id' => 'required|exists:assignments,id',
-            'rubric_id'     => 'required|exists:rubrics,id',
-            'student_name'  => 'nullable|string',
-        ]);
-
-        $name = $request->input('student_name', 'Anonymous');
-        $parser = new Parser();
-
-        // Ambil Data
-        $selectedRubric = Rubric::find($request->rubric_id);
-        $rubricData = $selectedRubric ? $selectedRubric->criteria : []; 
-
-        $assignment = Assignment::find($request->assignment_id);
-        $lastSubmissionId = null;
-
-        foreach ($request->file('pdf_files') as $file) {
-            $path = $file->store('submissions');
-            try {
-                $pdf = $parser->parseFile(storage_path('app/' . $path));
-                $studentText = $pdf->getText();
-            } catch (\Exception $e) {
-                $studentText = "Gagal membaca teks PDF.";
-            }
-
-            // Panggil Fungsi Gemini
-            $aiResult = $this->askGemini($assignment, $rubricData, $studentText);
-
-            $finalContent = "=== HASIL PENILAIAN AI (GEMINI) ===\n\n" . $aiResult . "\n\n" . 
-                            "==========================\n" .
-                            "=== TEKS ASLI MAHASISWA ===\n" . $studentText;
-
-            $submission = Submission::create([
-                'assignment_id'  => $request->assignment_id,
-                'student_name'   => $name,
-                'file_path'      => $path,
-                'extracted_text' => $finalContent,
-            ]);
-
-            $lastSubmissionId = $submission->id;
-        }
-
-        if ($lastSubmissionId) {
-            return redirect()->route('submissions.show', $lastSubmissionId)
-                             ->with('success', 'Analysis Complete!');
-        }
-
-        return redirect()->route('submissions.index');
+        return view('main.submissions.create', compact('assignments'));
     }
 
     /**
-     * Fungsi Helper: Mengirim Request ke Google Gemini dengan AUTO-DEBUG
+     * Store a newly created resource in storage.
      */
-    private function askGemini($assignment, $rubricJson, $studentText)
+    public function store(Request $request)
     {
-        $apiKey = env('GEMINI_API_KEY'); 
+        $request->validate([
+            'pdf_files' => 'required|array|min:1',
+            'pdf_files.*' => 'mimes:pdf',
+            'assignment_id' => 'required|exists:assignments,id',
+            'student_name' => 'nullable|string',
+        ]);
 
-        if (!$apiKey) return "Error: GEMINI_API_KEY belum disetting di .env";
+        $name = $request->input('student_name', 'Anonymous');
+        $parser = new Parser;
 
-        if (is_array($rubricJson) || is_object($rubricJson)) {
-            $rubricJson = json_encode($rubricJson, JSON_PRETTY_PRINT);
-        }
+        foreach ($request->file('pdf_files') as $file) {
+            $path = $file->store('submissions');
+            $pdf = $parser->parseFile(storage_path('app/' . $path));
+            $text = $pdf->getText();
 
-        $studentTextSafe = substr($studentText, 0, 15000); 
-
-        $prompt = "
-        Bertindaklah sebagai dosen. Nilai tugas ini berdasarkan rubrik.
-        
-        Judul: {$assignment->title}
-        Deskripsi: {$assignment->description}
-
-        Kriteria Rubrik:
-        $rubricJson
-
-        Jawaban Mahasiswa:
-        $studentTextSafe
-
-        Instruksi:
-        1. Nilai per poin kriteria.
-        2. Beri Nilai Akhir (0-100).
-        3. Beri Feedback singkat bahasa Indonesia.
-        ";
-
-        // URL Model Utama: Gemini 1.5 Flash (Standar Baru)
-        $model = 'gemini-2.5-flash'; 
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key=" . $apiKey;
-
-        try {
-            $response = Http::post($url, [
-                "contents" => [
-                    [ "parts" => [ ["text" => $prompt] ] ]
-                ]
+            Submission::create([
+                'assignment_id' => $request->assignment_id,
+                'student_name' => $name,
+                'file_path' => $path,
+                'extracted_text' => $text,
             ]);
-
-            if ($response->successful()) {
-                if(isset($response->json()['candidates'][0]['content']['parts'][0]['text'])) {
-                     return $response->json()['candidates'][0]['content']['parts'][0]['text'];
-                } else {
-                     return "Gemini Response Kosong: " . json_encode($response->json());
-                }
-            } else {
-                // === LOGIKA DEBUG OTOMATIS ===
-                // Jika error 404 (Model Not Found), kita coba tanya API: "Model apa yang tersedia untuk saya?"
-                if ($response->status() == 404) {
-                    $listModelsUrl = "https://generativelanguage.googleapis.com/v1beta/models?key=" . $apiKey;
-                    $listResponse = Http::get($listModelsUrl);
-                    
-                    if ($listResponse->successful()) {
-                        $models = $listResponse->json()['models'] ?? [];
-                        $availableModels = array_map(function($m) { return str_replace('models/', '', $m['name']); }, $models);
-                        $modelListString = implode(', ', $availableModels);
-                        
-                        return "ERROR: Model '$model' tidak ditemukan. \n\nDaftar Model yang tersedia untuk API Key Anda: \n[" . $modelListString . "]";
-                    }
-                }
-                
-                return "Gemini API Error ({$response->status()}): " . $response->body();
-            }
-        } catch (\Exception $e) {
-            return "Connection Error: " . $e->getMessage();
         }
+
+        return redirect()->route('submissions.index')->with('success', 'Submission created successfully.');
     }
-    
-    // ... Fungsi show, edit, update, destroy, download (Biarkan sama) ...
-    
+
+    /**
+     * Display the specified resource.
+     */
     public function show(Submission $submission)
     {
-        $submission->load('assignment');
+        $submission->load('result');
         return view('main.submissions.show', compact('submission'));
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(Submission $submission)
     {
         $assignments = Assignment::all();
         return view('main.submissions.edit', compact('submission', 'assignments'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, Submission $submission)
     {
-        $request->validate([
-            'assignment_id' => 'required|exists:assignments,id',
+        $validated = $request->validate([
             'student_name' => 'required|string',
-            'file' => 'nullable|mimes:pdf|max:10240',
+            'assignment_id' => 'required|exists:assignments,id',
+            'pdf_file' => 'nullable|mimes:pdf|max:20480',
         ]);
 
-        if ($request->hasFile('file')) {
-            if ($submission->file_path && Storage::exists($submission->file_path)) {
+        $submission->student_name = $request->student_name;
+        $submission->assignment_id = $request->assignment_id;
+
+        // Cek jika ada file baru yang diunggah
+        if ($request->hasFile('pdf_file')) {
+            // 1. Hapus file lama dari storage
+            if (Storage::exists($submission->file_path)) {
                 Storage::delete($submission->file_path);
             }
-            $path = $request->file('file')->store('submissions');
+
+            // 2. Simpan file baru
+            $file = $request->file('pdf_file');
+            $path = $file->store('submissions');
+
+            // 3. Ekstraksi teks baru
             $parser = new Parser();
-            try {
-                $pdf = $parser->parseFile(storage_path('app/' . $path));
-                $text = $pdf->getText();
-            } catch (\Exception $e) {
-                $text = "";
-            }
+            $pdf = $parser->parseFile(storage_path('app/' . $path));
+            $text = $pdf->getText();
+
+            // 4. Update path dan teks
             $submission->file_path = $path;
-            $submission->extracted_text = $text; 
+            $submission->extracted_text = $text;
+
+            // Opsi: Hapus hasil grading lama jika file berubah karena konten sudah berbeda
+            if ($submission->result) {
+                $submission->result->delete();
+            }
         }
-        $submission->assignment_id = $request->assignment_id;
-        $submission->student_name = $request->student_name;
+
         $submission->save();
-        return redirect()->route('submissions.index')->with('success', 'Submission updated.');
+        return redirect()->route('submissions.index')->with('success', 'Submission updated successfully.');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(Submission $submission)
     {
         if ($submission->file_path && Storage::exists($submission->file_path)) {
             Storage::delete($submission->file_path);
         }
+
+        if ($submission->result) {
+            $submission->result->delete();
+        }
+
         $submission->delete();
-        return redirect()->route('submissions.index')->with('success', 'Deleted.');
+
+        return redirect()->route('submissions.index')->with('success', 'Submission deleted successfully.');
     }
 
+    /**
+     * Download the submission file.
+     */
     public function download(Submission $submission)
     {
         $path = storage_path('app/' . $submission->file_path);
-        if (!file_exists($path)) abort(404);
+
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
         return response()->download($path, basename($submission->file_path));
     }
 }

@@ -20,8 +20,7 @@
             
             <div class="p-12 pb-0 z-10">
                 <div class="flex items-center gap-3 mb-10">
-                    <img src="{{ asset('images/vexel-logo.png') }}" alt="Vexel Logo" class="h-8 w-auto">
-                    <span class="text-2xl font-bold text-[#764BA2] tracking-wide">Vexel</span>
+                    <img src="{{ asset('images/logo_vexel.png') }}" alt="Vexel Logo" class="h-10 w-auto">
                 </div>
 
                 @if (request()->routeIs('register'))
@@ -33,21 +32,21 @@
                 @else
                     <h1 class="text-5xl font-bold text-[#764BA2] leading-tight tracking-tight">
                         Welcome back.<br>
-                        Streamline your<br>
-                        grading with Vexel.
+                        Streamline your grading<br>
+                        with Vexel.
                     </h1>
                 @endif
             </div>
 
-            <div class="absolute bottom-0 left-0 right-0 flex justify-center items-end px-8 z-0">
+            <div class="absolute bottom-0 left-0 right-0 flex items-end px-8 z-0">
                 @if (request()->routeIs('register'))
-                    <img src="{{ asset('images/register-illustration.png') }}" 
+                    <img src="{{ asset('images/register.png') }}" 
                          alt="Register Vexel" 
-                         class="w-full max-w-lg object-contain object-bottom drop-shadow-sm">
+                         class="w-full max-w-xl object-contain object-bottom drop-shadow-sm">
                 @else
-                    <img src="{{ asset('images/login-illustration.png') }}" 
+                    <img src="{{ asset('images/login.png') }}" 
                          alt="Login Vexel" 
-                         class="w-full max-w-lg object-contain object-bottom drop-shadow-sm">
+                         class="w-full max-w-sm object-contain object-bottom drop-shadow-sm">
                 @endif
             </div>
         </div>

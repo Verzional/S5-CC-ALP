@@ -3,16 +3,12 @@
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RubricController;
-use App\Models\Assignment;
+use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\GradingController;
 use App\Models\Rubric;
+use App\Models\Assignment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,28 +26,28 @@ Route::get('/dashboard', function () {
 
     // A. Aktivitas Rubric
     $rubricActivities = Rubric::latest('updated_at')->take(5)->get()->map(function ($item) {
-        return (object) [
-            'name' => $item->subject_name,
-            'date' => $item->updated_at,
-            'type' => 'Rubric',
+        return (object)[
+            'name'   => $item->subject_name,
+            'date'   => $item->updated_at,
+            'type'   => 'Rubric',
         ];
     });
 
     // B. Aktivitas Assignment
     $assignmentActivities = Assignment::latest('updated_at')->take(5)->get()->map(function ($item) {
-        return (object) [
-            'name' => $item->title,
-            'date' => $item->updated_at,
-            'type' => 'Assignment',
+        return (object)[
+            'name'   => $item->title,
+            'date'   => $item->updated_at,
+            'type'   => 'Assignment',
         ];
     });
 
     // C. Aktivitas Submission
     $submissionActivities = DB::table('submissions')->orderBy('created_at', 'desc')->take(5)->get()->map(function ($item) {
-        return (object) [
-            'name' => 'Submission #'.$item->id,
-            'date' => \Carbon\Carbon::parse($item->created_at),
-            'type' => 'Submission',
+        return (object)[
+            'name'   => 'Submission #' . $item->id,
+            'date'   => \Carbon\Carbon::parse($item->created_at),
+            'type'   => 'Submission',
         ];
     });
 
@@ -69,7 +65,6 @@ Route::get('/dashboard', function () {
         'totalSubmissions' => $totalSubmissions,
         'activities' => $allActivities,
     ]);
-
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // --- AUTHENTICATED ROUTES ---
@@ -82,9 +77,15 @@ Route::middleware('auth')->group(function () {
     // Resources
     Route::resource('rubrics', RubricController::class);
     Route::resource('assignments', AssignmentController::class);
-    Route::resource('submissions', \App\Http\Controllers\SubmissionController::class);
-    Route::get('submissions/{submission}/download', [SubmissionController::class, 'download'])->name('submissions.download')->middleware('auth');
-    Route::post('submissions/{submission}/grade', [GradingController::class, 'grade'])->name('submissions.grade')->middleware('auth');
+    Route::resource('submissions', SubmissionController::class);
+
+    Route::get(
+        'submissions/{submission}/download',
+        [SubmissionController::class, 'download']
+    )->name('submissions.download');
+
+    Route::post('/submissions/{submission}/grade', [GradingController::class, 'grade'])
+        ->name('submissions.grade');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

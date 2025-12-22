@@ -10,9 +10,15 @@ class RubricController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $rubrics = Rubric::all();
+        $rubrics = Rubric::when($request->search, function ($query, $search) {
+            $query->where('subject_name', 'like', "%{$search}%")
+                ->orWhere('criteria', 'like', "%{$search}%");
+        })
+            ->latest()
+            ->get();
+
         return view('main.rubrics.index', compact('rubrics'));
     }
 
@@ -27,7 +33,7 @@ class RubricController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) 
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'subject_name' => 'required|string',
