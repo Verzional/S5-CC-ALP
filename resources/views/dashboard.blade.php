@@ -1,11 +1,11 @@
 <x-app-layout>
-    <div class="mb-10 flex items-center justify-between">
+    <div class="mb-6 sm:mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-2xl font-black text-slate-700 tracking-tight">
                 Hello, {{ Auth::user()->name }}! 👋
             </h2>
         </div>
-        <div class="hidden sm:block">
+        <div class="self-start sm:self-auto">
             <span
                 class="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-4 py-2 rounded-full border border-slate-200">
                 {{ now()->format('l, d M Y') }}
@@ -13,7 +13,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-10">
         <div
             class="p-6 rounded-2xl bg-gradient-to-br from-[#667EEA] to-[#764BA2] text-white shadow-lg shadow-indigo-200">
             <div class="flex flex-col h-full justify-between">
@@ -78,27 +78,27 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-[#F8F9FF] border-b border-slate-100 text-slate-400">
-                            <th class="py-5 px-8 text-[11px] font-black uppercase tracking-[0.2em]">Activity Details
+                            <th class="py-4 px-4 sm:py-5 sm:px-8 text-[11px] font-black uppercase tracking-[0.2em]">Activity Details
                             </th>
-                            <th class="py-5 px-8 text-[11px] font-black uppercase tracking-[0.2em]">Date</th>
-                            <th class="py-5 px-8 text-[11px] font-black uppercase tracking-[0.2em]">Category</th>
+                            <th class="py-4 px-4 sm:py-5 sm:px-8 text-[11px] font-black uppercase tracking-[0.2em]">Date</th>
+                            <th class="py-4 px-4 sm:py-5 sm:px-8 text-[11px] font-black uppercase tracking-[0.2em]">Category</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
                         @forelse($activities as $activity)
                             <tr class="group hover:bg-[#F8F9FF] transition-all duration-300">
-                                <td class="py-5 px-8">
+                                <td class="py-4 px-4 sm:py-5 sm:px-8">
                                     <div class="flex items-center gap-4">
                                         <span
                                             class="font-bold text-slate-700 text-sm tracking-tight group-hover:text-slate-900">{{ $activity->name }}</span>
                                     </div>
                                 </td>
-                                <td class="py-5 px-8">
+                                <td class="py-4 px-4 sm:py-5 sm:px-8">
                                     <span class="text-xs font-semibold text-slate-400 italic">
                                         {{ $activity->date->diffForHumans() }}
                                     </span>
                                 </td>
-                                <td class="py-5 px-8">
+                                <td class="py-4 px-4 sm:py-5 sm:px-8">
                                     @if ($activity->type == 'Rubric')
                                         <span
                                             class="bg-purple-50 text-[#764BA2] px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-purple-100 shadow-sm">Rubric</span>

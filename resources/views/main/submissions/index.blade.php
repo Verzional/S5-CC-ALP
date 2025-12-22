@@ -1,41 +1,14 @@
 <x-index-layout title="Submissions List" description="Manage student submissions and AI grading results.">
     <x-slot name="actions">
-        <form method="GET" action="{{ route('submissions.index') }}" class="relative w-full sm:w-72">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </span>
+        <x-search-input :action="route('submissions.index')" placeholder="Search submissions..." />
 
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search submissions..."
-                class="w-full py-2.5 pl-10 pr-4 bg-gray-50 border border-gray-200
-               text-gray-700 rounded-xl focus:outline-none
-               focus:ring-2 focus:ring-[#764BA2]
-               transition-all placeholder-gray-400">
-
-            @if (request('search'))
-                <a href="{{ route('submissions.index') }}"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
-                    ✕
-                </a>
-            @endif
-        </form>
-
-
-        <a href="{{ route('submissions.create') }}"
-            class="w-full sm:w-auto px-6 py-3 bg-[#764BA2] hover:bg-[#633e8a]
-                   text-white font-bold rounded-xl shadow-lg shadow-indigo-200
-                   transition-transform transform hover:-translate-y-0.5
-                   flex items-center justify-center gap-2">
+        <x-primary-link-button :href="route('submissions.create')">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             Upload Submission
-        </a>
+        </x-primary-link-button>
     </x-slot>
-
-    <x-toast :message="session('success')" type="success" />
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($submissions as $submission)

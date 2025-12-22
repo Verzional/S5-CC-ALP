@@ -37,42 +37,26 @@
 
             <nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
 
-                <a href="{{ route('dashboard') }}"
-                    class="flex items-center px-4 py-3 rounded-xl transition-all group relative {{ request()->routeIs('dashboard') ? 'bg-white text-[#764BA2] shadow-sm font-bold' : 'text-gray-500 hover:text-[#764BA2] hover:bg-indigo-50 font-medium' }}">
-                    @if (request()->routeIs('dashboard'))
-                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#764BA2] rounded-l-xl"></div>
-                    @endif
+                <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     <span>Dashboard</span>
-                </a>
+                </x-sidebar-link>
 
                 @if (Route::has('rubrics.index'))
-                    <a href="{{ route('rubrics.index') }}"
-                        class="flex items-center px-4 py-3 rounded-xl transition-all group relative {{ request()->routeIs('rubrics*') ? 'bg-white text-[#764BA2] shadow-sm font-bold' : 'text-gray-500 hover:text-[#764BA2] hover:bg-indigo-50 font-medium' }}">
-                        @if (request()->routeIs('rubrics*'))
-                            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#764BA2] rounded-l-xl"></div>
-                        @endif
+                    <x-sidebar-link :href="route('rubrics.index')" :active="request()->routeIs('rubrics*')">
                         <span>Rubrics</span>
-                    </a>
+                    </x-sidebar-link>
                 @endif
 
                 @if (Route::has('assignments.index'))
-                    <a href="{{ route('assignments.index') }}"
-                        class="flex items-center px-4 py-3 rounded-xl transition-all group relative {{ request()->routeIs('assignments*') ? 'bg-white text-[#764BA2] shadow-sm font-bold' : 'text-gray-500 hover:text-[#764BA2] hover:bg-indigo-50 font-medium' }}">
-                        @if (request()->routeIs('assignments*'))
-                            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#764BA2] rounded-l-xl"></div>
-                        @endif
+                    <x-sidebar-link :href="route('assignments.index')" :active="request()->routeIs('assignments*')">
                         <span>Assignments</span>
-                    </a>
+                    </x-sidebar-link>
                 @endif
 
                 @if (Route::has('submissions.index'))
-                    <a href="{{ route('submissions.index') }}"
-                        class="flex items-center px-4 py-3 rounded-xl transition-all group relative {{ request()->routeIs('submissions*') ? 'bg-white text-[#764BA2] shadow-sm font-bold' : 'text-gray-500 hover:text-[#764BA2] hover:bg-indigo-50 font-medium' }}">
-                        @if (request()->routeIs('submissions*'))
-                            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#764BA2] rounded-l-xl"></div>
-                        @endif
+                    <x-sidebar-link :href="route('submissions.index')" :active="request()->routeIs('submissions*')">
                         <span>Submissions</span>
-                    </a>
+                    </x-sidebar-link>
                 @endif
 
             </nav>
@@ -126,6 +110,13 @@
             </main>
         </div>
     </div>
+
+    @if (session('success'))
+        <x-toast :message="session('success')" type="success" />
+    @endif
+    @if (session('error'))
+        <x-toast :message="session('error')" type="error" />
+    @endif
 </body>
 
 </html>
