@@ -11,7 +11,7 @@ class Rubric extends Model
     protected $casts = [
         'criteria' => 'array',
     ];
-    
+
     public function assignments()
     {
         return $this->hasMany(Assignment::class);

@@ -1,10 +1,5 @@
-<x-app-layout>
-    <div>
-        <h2 class="text-2xl font-bold text-gray-700">Submissions List</h2>
-        <p class="text-gray-500">Manage student submissions and AI grading results.</p>
-    </div>
-
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-8 mt-5">
+<x-index-layout title="Submissions List" description="Manage student submissions and AI grading results.">
+    <x-slot name="actions">
         <form method="GET" action="{{ route('submissions.index') }}" class="relative w-full sm:w-72">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -38,7 +33,7 @@
             </svg>
             Upload Submission
         </a>
-    </div>
+    </x-slot>
 
     <x-toast :message="session('success')" type="success" />
 
@@ -107,4 +102,4 @@
             </div>
         @endforelse
     </div>
-</x-app-layout>
+</x-index-layout>

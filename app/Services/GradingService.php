@@ -49,7 +49,7 @@ class GradingService
             ]);
 
         if ($response->failed()) {
-            throw new \Exception('Gemini API Error: ' . $response->body());
+            throw new \Exception('Gemini API Error: '.$response->body());
         }
 
         $responseData = $response->json();
@@ -57,7 +57,7 @@ class GradingService
 
         $decoded = json_decode($generatedText, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('Invalid JSON response from AI: ' . json_last_error_msg());
+            throw new \Exception('Invalid JSON response from AI: '.json_last_error_msg());
         }
 
         return $decoded;
@@ -69,7 +69,7 @@ class GradingService
         $prompt .= "Your task is to grade a student's work based on the weighted criteria below.\n\n";
 
         $prompt .= "### ASSIGNMENT INSTRUCTIONS (Topic):\n";
-        $prompt .= $assignmentDescription . "\n";
+        $prompt .= $assignmentDescription."\n";
         $prompt .= "IMPORTANT: If the student's submission is not relevant to these instructions, penalize the grade significantly, even if the rubric criteria are met.\n\n";
 
         $prompt .= "### GRADING CRITERIA (The Rules):\n";
@@ -88,13 +88,13 @@ class GradingService
         if ($examples->isNotEmpty()) {
             $prompt .= "### REFERENCE EXAMPLES (Previous Grading Style):\n";
             foreach ($examples as $i => $ex) {
-                $prompt .= 'Example #' . ($i + 1) . ': Given score ' . $ex->score . "\n";
-                $prompt .= 'Reasoning: ' . $ex->reasoning . "\n---\n";
+                $prompt .= 'Example #'.($i + 1).': Given score '.$ex->score."\n";
+                $prompt .= 'Reasoning: '.$ex->reasoning."\n---\n";
             }
         }
 
         $prompt .= "### STUDENT SUBMISSION:\n";
-        $prompt .= $studentText . "\n\n";
+        $prompt .= $studentText."\n\n";
 
         $prompt .= <<<'EOT'
         ### OUTPUT FORMAT:

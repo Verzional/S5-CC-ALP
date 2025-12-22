@@ -1,10 +1,5 @@
-<x-app-layout>
-    <div>
-        <h2 class="text-2xl font-bold text-gray-700">Assignments List</h2>
-        <p class="text-gray-500">Manage assignments and connect them with grading rubrics.</p>
-    </div>
-
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-8 mt-5">
+<x-index-layout title="Assignments List" description="Manage assignments and connect them with grading rubrics.">
+    <x-slot name="actions">
         <form method="GET" action="{{ route('assignments.index') }}" class="relative w-full sm:w-80">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -30,7 +25,7 @@
             </svg>
             Create New Assignment
         </a>
-    </div>
+    </x-slot>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($assignments ?? [] as $assignment)
@@ -63,7 +58,7 @@
                 </div>
 
                 <a href="{{ route('assignments.show', $assignment->id) }}"
-                    class="block h-full flex flex-col justify-between relative z-10">
+                    class="h-full flex flex-col justify-between relative z-10">
                     <div
                         class="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-4 text-[#764BA2] shadow-sm">
 
@@ -106,4 +101,4 @@
         @endforelse
 
     </div>
-</x-app-layout>
+</x-index-layout>

@@ -1,10 +1,5 @@
-<x-app-layout>
-    <div>
-        <h2 class="text-2xl font-bold text-gray-700">Rubrics List</h2>
-        <p class="text-gray-500">Create and organize rubrics for fair and structured grading.</p>
-    </div>
-
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-8 mt-5">
+<x-index-layout title="Rubrics List" description="Create and organize rubrics for fair and structured grading.">
+    <x-slot name="actions">
         <form method="GET" action="{{ route('rubrics.index') }}" class="relative w-full sm:w-72">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -38,7 +33,7 @@
             </svg>
             Create New Rubric
         </a>
-    </div>
+    </x-slot>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($rubrics ?? [] as $rubric)
@@ -97,7 +92,8 @@
                         </span>
                     </div>
 
-                    <div class="pt-4 border-t border-indigo-200/50 text-[10px] text-gray-400 font-bold uppercase tracking-widest flex justify-between items-center">
+                    <div
+                        class="pt-4 border-t border-indigo-200/50 text-[10px] text-gray-400 font-bold uppercase tracking-widest flex justify-between items-center">
                         <span>Modified {{ $rubric->updated_at ? $rubric->updated_at->diffForHumans() : '-' }}</span>
                         <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -112,5 +108,4 @@
             </div>
         @endforelse
     </div>
-    </div>
-</x-app-layout>
+</x-index-layout>

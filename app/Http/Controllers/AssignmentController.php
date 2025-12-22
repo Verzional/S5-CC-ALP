@@ -23,6 +23,7 @@ class AssignmentController extends Controller
             })
             ->latest()
             ->get();
+
         return view('main.assignments.index', compact('assignments'));
     }
 
@@ -32,6 +33,7 @@ class AssignmentController extends Controller
     public function create()
     {
         $rubrics = Rubric::all();
+
         return view('main.assignments.create', compact('rubrics'));
     }
 
@@ -66,6 +68,7 @@ class AssignmentController extends Controller
     public function edit(Assignment $assignment)
     {
         $rubrics = Rubric::all();
+
         return view('main.assignments.edit', compact('assignment', 'rubrics'));
     }
 
