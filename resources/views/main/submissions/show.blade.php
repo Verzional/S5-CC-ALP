@@ -41,6 +41,34 @@
                         </svg>
                     </a>
                 </div>
+
+                <!-- File Section -->
+                <div class="mb-8">
+                    <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Submitted File</h2>
+                    <div class="bg-transparent rounded-xl p-4 border border-indigo-50 shadow-sm">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="bg-white p-2 rounded-lg border border-gray-200">
+                                <svg class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <p class="text-sm font-medium text-gray-700 truncate"
+                                title="{{ basename($submission->file_path) }}">
+                                {{ basename($submission->file_path) }}
+                            </p>
+                        </div>
+                        <a href="{{ route('submissions.download', $submission) }}"
+                            class="flex items-center justify-center w-full px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-50 hover:border-gray-300 transition-all text-sm shadow-sm">
+                            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Download PDF
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <div class="p-6 sm:p-8 space-y-10">

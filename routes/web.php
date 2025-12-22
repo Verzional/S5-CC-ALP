@@ -1,15 +1,14 @@
 <?php
 
+use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RubricController;
-use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\GradingController;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
 use App\Models\Rubric;
 use App\Models\Assignment;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
@@ -61,13 +60,12 @@ Route::get('/dashboard', function () {
 
     // 4. KIRIM KE VIEW
     return view('dashboard', [
-        'totalRubrics'     => $totalRubrics,
+        'totalRubrics' => $totalRubrics,
         'totalAssignments' => $totalAssignments,
         'totalSubmissions' => $totalSubmissions,
-        'activities'       => $allActivities
+        'activities' => $allActivities,
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
-
 
 // --- AUTHENTICATED ROUTES ---
 Route::middleware('auth')->group(function () {
