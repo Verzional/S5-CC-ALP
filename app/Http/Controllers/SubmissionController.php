@@ -24,7 +24,7 @@ class SubmissionController extends Controller
             })
             ->latest()
             ->get();
-            
+
         return view('main.submissions.index', compact('submissions'));
     }
 
@@ -55,7 +55,7 @@ class SubmissionController extends Controller
 
         foreach ($request->file('pdf_files') as $file) {
             $path = $file->store('submissions');
-            $pdf = $parser->parseFile(storage_path('app/' . $path));
+            $pdf = $parser->parseFile(storage_path('app/'.$path));
             $text = $pdf->getText();
 
             Submission::create([
@@ -75,6 +75,7 @@ class SubmissionController extends Controller
     public function show(Submission $submission)
     {
         $submission->load('result');
+
         return view('main.submissions.show', compact('submission'));
     }
 
@@ -84,6 +85,7 @@ class SubmissionController extends Controller
     public function edit(Submission $submission)
     {
         $assignments = Assignment::all();
+
         return view('main.submissions.edit', compact('submission', 'assignments'));
     }
 
@@ -113,8 +115,8 @@ class SubmissionController extends Controller
             $path = $file->store('submissions');
 
             // 3. Ekstraksi teks baru
-            $parser = new Parser();
-            $pdf = $parser->parseFile(storage_path('app/' . $path));
+            $parser = new Parser;
+            $pdf = $parser->parseFile(storage_path('app/'.$path));
             $text = $pdf->getText();
 
             // 4. Update path dan teks
@@ -128,6 +130,7 @@ class SubmissionController extends Controller
         }
 
         $submission->save();
+
         return redirect()->route('submissions.index')->with('success', 'Submission updated successfully.');
     }
 
@@ -154,9 +157,9 @@ class SubmissionController extends Controller
      */
     public function download(Submission $submission)
     {
-        $path = storage_path('app/' . $submission->file_path);
+        $path = storage_path('app/'.$submission->file_path);
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             abort(404);
         }
 

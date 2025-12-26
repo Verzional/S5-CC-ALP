@@ -1,134 +1,183 @@
-<x-app-layout>
-    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-            <a href="{{ route('rubrics.index') }}"
-                class="inline-flex items-center gap-2 text-slate-500 font-semibold hover:text-[#764BA2] transition-colors group">
-                <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to List
-            </a>
-        </div>
+<x-show-layout badge="Rubric Detail" :title="$rubric->subject_name" :subtitle="'Created on ' . $rubric->created_at->format('M d, Y')" :backRoute="route('rubrics.index')" :editRoute="route('rubrics.edit', $rubric->id)"
+    :deleteRoute="route('rubrics.destroy', $rubric->id)" deleteConfirm="Delete this rubric? This might affect assignments." maxWidth="7xl">
 
-        <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 overflow-hidden border border-slate-100">
-            <div
-                class="bg-[#F8F9FF] p-6 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start gap-4">
-                <div class="space-y-2">
-                    <span
-                        class="inline-block bg-[#764BA2] text-white text-[10px] px-2.5 py-1 rounded-lg font-bold uppercase tracking-widest shadow-sm">
-                        Rubric Detail
-                    </span>
-                    <h1 class="text-3xl font-extrabold text-slate-800">{{ $rubric->subject_name }}</h1>
-                    <p class="text-slate-500 flex items-center gap-2 font-medium text-sm">
-                        <svg class="w-5 h-5 text-[#764BA2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        Created on {{ $rubric->created_at->format('M d, Y') }}
-                    </p>
+    <x-slot name="subtitleIcon">
+        <svg class="w-5 h-5 text-[#764BA2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+    </x-slot>
+
+    @php
+        $criteriaList = is_string($rubric->criteria) ? json_decode($rubric->criteria, true) : $rubric->criteria;
+        $criteriaList = is_array($criteriaList) ? $criteriaList : [];
+
+        $totalWeight = array_reduce(
+            $criteriaList,
+            function ($carry, $item) {
+                return $carry + ($item['weight'] ?? 0);
+            },
+            0,
+        );
+    @endphp
+
+    {{-- Assignment Info --}}
+    @if ($rubric->assignment)
+        <div class="mb-6 bg-indigo-50 rounded-2xl p-4 border border-indigo-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#764BA2] shadow-sm">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                 </div>
-
-                <div class="flex items-center gap-3 self-end sm:self-start">
-                    <a href="{{ route('rubrics.edit', $rubric->id) }}"
-                        class="p-2.5 bg-white rounded-xl shadow-sm text-slate-400 hover:text-[#764BA2] hover:shadow-md transition-all border border-slate-200">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Linked Assignment</p>
+                    <a href="{{ route('assignments.show', $rubric->assignment_id) }}"
+                        class="text-[#764BA2] font-bold hover:underline">
+                        {{ $rubric->assignment->title }}
                     </a>
-                    <form action="{{ route('rubrics.destroy', $rubric->id) }}" method="POST"
-                        onsubmit="return confirm('Delete this rubric? This might affect assignments.');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                            class="p-2.5 bg-white rounded-xl shadow-sm text-slate-400 hover:text-red-500 hover:shadow-md transition-all border border-slate-200">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </form>
                 </div>
             </div>
+        </div>
+    @endif
 
-            <div class="p-8">
+    {{-- Criteria Header --}}
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+            Assessment Criteria with Performance Levels
+        </h3>
 
-                @php
-                    // Logic Decode JSON Criteria
-                    $criteriaList = is_string($rubric->criteria)
-                        ? json_decode($rubric->criteria, true)
-                        : $rubric->criteria;
-                    $criteriaList = is_array($criteriaList) ? $criteriaList : [];
+        <div class="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Weight</span>
+            <span class="text-lg font-bold {{ $totalWeight == 100 ? 'text-green-600' : 'text-red-500' }}">
+                {{ $totalWeight }}%
+            </span>
+        </div>
+    </div>
 
-                    // Hitung Total Weight
-                    $totalWeight = array_reduce(
-                        $criteriaList,
-                        function ($carry, $item) {
-                            return $carry + ($item['weight'] ?? 0);
-                        },
-                        0,
-                    );
-                @endphp
-
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-bold text-gray-700 border-l-4 border-[#764BA2] pl-3">
-                        Assessment Criteria
-                    </h3>
-
-                    <div class="flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-100">
-                        <span class="text-xs font-bold text-gray-500 uppercase">Total Weight</span>
-                        <span class="text-lg font-bold {{ $totalWeight == 100 ? 'text-green-600' : 'text-red-500' }}">
-                            {{ $totalWeight }}%
-                        </span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 gap-4">
-
-                    @forelse($criteriaList as $index => $item)
-                        <div
-                            class="group bg-white rounded-2xl p-5 border border-gray-100 hover:border-indigo-200 hover:shadow-md transition-all flex flex-col md:flex-row gap-5 items-start">
-
+    {{-- Criteria List --}}
+    <div class="space-y-6">
+        @forelse($criteriaList as $index => $item)
+            <div
+                class="bg-gradient-to-br from-[#F4F4FF] to-[#EBEBFF] rounded-2xl border border-indigo-100 overflow-hidden">
+                {{-- Criterion Header --}}
+                <div class="p-5 border-b border-indigo-100">
+                    <div class="flex flex-col md:flex-row gap-4 md:items-center justify-between">
+                        <div class="flex items-start gap-4">
+                            {{-- Number Badge --}}
                             <div
-                                class="flex-shrink-0 w-12 h-12 bg-[#F0F2FF] text-[#764BA2] rounded-xl flex items-center justify-center font-bold text-lg group-hover:bg-[#764BA2] group-hover:text-white transition-colors">
+                                class="flex-shrink-0 w-12 h-12 bg-[#764BA2] text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-lg">
                                 {{ $loop->iteration }}
                             </div>
 
-                            <div class="flex-grow">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="text-lg font-bold text-gray-700">{{ $item['name'] }}</h4>
-                                    <span
-                                        class="md:hidden bg-indigo-50 text-[#764BA2] px-2 py-1 rounded text-xs font-bold">{{ $item['weight'] }}%</span>
-                                </div>
-                                <p class="text-gray-500 text-sm leading-relaxed">
-                                    {{ $item['description'] ?? 'No specific description provided for this criterion.' }}
-                                </p>
+                            <div class="min-w-0">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Graduate
+                                    Outcome Indicator</p>
+                                <h4 class="text-lg font-bold text-slate-700">
+                                    {{ $item['indicator'] ?? ($item['name'] ?? 'N/A') }}</h4>
+                                <p class="text-slate-500 text-sm mt-1">
+                                    {{ $item['criteria'] ?? ($item['description'] ?? 'No description provided.') }}</p>
                             </div>
-
-                            <div
-                                class="hidden md:flex flex-col items-end justify-center self-center pl-6 border-l border-gray-100 min-w-[100px]">
-                                <span
-                                    class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Weight</span>
-                                <span class="text-2xl font-bold text-[#764BA2]">{{ $item['weight'] }}%</span>
-                            </div>
-
                         </div>
-                    @empty
-                        <div class="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                            <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <p class="text-gray-400 font-medium">No criteria found.</p>
-                        </div>
-                    @endforelse
 
+                        {{-- Weight Badge --}}
+                        <div
+                            class="flex-shrink-0 bg-white rounded-xl px-4 py-3 border border-slate-200 text-center shadow-sm">
+                            <span
+                                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Weight</span>
+                            <span class="text-2xl font-black text-[#764BA2]">{{ $item['weight'] }}%</span>
+                        </div>
+                    </div>
                 </div>
 
+                {{-- Performance Levels Table --}}
+                @if (isset($item['levels']) && is_array($item['levels']) && count($item['levels']) > 0)
+                    <div class="p-5">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Performance
+                            Levels (Score Bands)</p>
+                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                            <table class="w-full">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th
+                                            class="px-4 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                            Score Range</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                            Grade</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                            Performance Descriptor</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    @foreach ($item['levels'] as $level)
+                                        <tr class="hover:bg-slate-50 transition-colors">
+                                            <td class="px-4 py-3 text-sm font-medium text-slate-600">
+                                                {{ $level['min'] }} - {{ $level['max'] }}
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span @class([
+                                                    'inline-flex items-center px-3 py-1 rounded-lg text-sm font-bold',
+                                                    'bg-green-100 text-green-700' => in_array($level['grade'], [
+                                                        'A',
+                                                        'A-',
+                                                        'A-, A',
+                                                    ]),
+                                                    'bg-blue-100 text-blue-700' => in_array($level['grade'], [
+                                                        'B',
+                                                        'B+',
+                                                        'B-',
+                                                        'B-, B, B+',
+                                                    ]),
+                                                    'bg-yellow-100 text-yellow-700' => in_array($level['grade'], [
+                                                        'C',
+                                                        'C+',
+                                                        'C, C+',
+                                                    ]),
+                                                    'bg-orange-100 text-orange-700' => $level['grade'] === 'D',
+                                                    'bg-red-100 text-red-700' => !in_array($level['grade'], [
+                                                        'A',
+                                                        'A-',
+                                                        'A-, A',
+                                                        'B',
+                                                        'B+',
+                                                        'B-',
+                                                        'B-, B, B+',
+                                                        'C',
+                                                        'C+',
+                                                        'C, C+',
+                                                        'D',
+                                                    ]),
+                                                ])>
+                                                    {{ $level['grade'] }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-slate-600">
+                                                {{ $level['description'] ?? 'No description' }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @else
+                    <div class="p-5 text-center text-slate-400 text-sm">
+                        <p>No performance levels defined for this criterion.</p>
+                    </div>
+                @endif
             </div>
-        </div>
+        @empty
+            <div class="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p class="text-slate-400 font-medium">No criteria found.</p>
+            </div>
+        @endforelse
     </div>
-</x-app-layout>
+</x-show-layout>

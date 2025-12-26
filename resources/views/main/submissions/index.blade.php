@@ -1,46 +1,14 @@
-<x-app-layout>
-    <div>
-        <h2 class="text-2xl font-bold text-gray-700">Submissions List</h2>
-        <p class="text-gray-500">Manage student submissions and AI grading results.</p>
-    </div>
+<x-index-layout title="Submissions List" description="Manage student submissions and AI grading results.">
+    <x-slot name="actions">
+        <x-search-input :action="route('submissions.index')" placeholder="Search submissions..." />
 
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-8 mt-5">
-        <form method="GET" action="{{ route('submissions.index') }}" class="relative w-full sm:w-72">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </span>
-
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search submissions..."
-                class="w-full py-2.5 pl-10 pr-4 bg-gray-50 border border-gray-200
-               text-gray-700 rounded-xl focus:outline-none
-               focus:ring-2 focus:ring-[#764BA2]
-               transition-all placeholder-gray-400">
-
-            @if (request('search'))
-                <a href="{{ route('submissions.index') }}"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
-                    ✕
-                </a>
-            @endif
-        </form>
-
-
-        <a href="{{ route('submissions.create') }}"
-            class="w-full sm:w-auto px-6 py-3 bg-[#764BA2] hover:bg-[#633e8a]
-                   text-white font-bold rounded-xl shadow-lg shadow-indigo-200
-                   transition-transform transform hover:-translate-y-0.5
-                   flex items-center justify-center gap-2">
+        <x-primary-link-button :href="route('submissions.create')">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             Upload Submission
-        </a>
-    </div>
-
-    <x-toast :message="session('success')" type="success" />
+        </x-primary-link-button>
+    </x-slot>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($submissions as $submission)
@@ -56,10 +24,9 @@
                         </svg>
                     </a>
 
-                    <form action="{{ route('submissions.destroy', $submission) }}" method="POST"
-                        onsubmit="return confirm('Delete this submission?');">
+                    <form id="delete-form-{{ $submission->id }}" action="{{ route('submissions.destroy', $submission) }}" method="POST">
                         @csrf @method('DELETE')
-                        <button type="submit"
+                        <button type="button" onclick="confirmDelete({{ $submission->id }})"
                             class="w-8 h-8 flex items-center justify-center bg-[#ffdede] text-red-500 rounded-lg hover:bg-red-500 hover:text-white hover:scale-110 transition-all">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -107,4 +74,6 @@
             </div>
         @endforelse
     </div>
-</x-app-layout>
+
+    <x-toast-delete message="Are you sure you want to delete this submission? This action cannot be undone." />
+</x-index-layout>
